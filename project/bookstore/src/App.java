@@ -180,6 +180,7 @@ public class App {
 
                     }else if (response.equals("3")) {
                         System.out.println("Thank you owner, see you next time.");
+                        System.exit(0);
                         break;
                     }
 
