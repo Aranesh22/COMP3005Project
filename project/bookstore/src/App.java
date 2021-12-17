@@ -2,10 +2,14 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Properties;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.text.ParsePosition;
 import java.util.Scanner;
+import java.util.HashMap;
+import java.util.Map;
 
 public class App {
     public static void main(String[] args) throws Exception {
@@ -120,7 +124,7 @@ public class App {
                     String response = scanner.nextLine();
 
                     if (response.equals("1")) {
-                        System.out.println("Please enter the values for the book.");
+                        System.out.println("Please enter the values for the book (MUST be with existing author, publisher since we're owner we should know this).");
                         num_books += 1;
 
                         //Yes we're assuming the owner knows what publisher and author to input
@@ -140,15 +144,13 @@ public class App {
                         String price = scanner.nextLine();
 
                         Statement stmt_book = conn.createStatement();
-                        String check = "insert into book values('" + id + "', '" + publisher_id + "', '" + author_id + "', '" + book_name + "', '" + genre + "', " + num_pages + ", " + price + ")";
-                        System.out.println(check);
 
                         try { 
                             stmt_book.executeUpdate("insert into book values('" + id + "', '" + publisher_id + "', '" + author_id + "', '" + book_name + "', '" + genre + "', " + num_pages + ", " + price + ")");
                             continue;
 
                         }catch (SQLException sqle) {
-                            System.out.println("Couldn't insert new book, please try again.");
+                            System.out.println(sqle.getMessage());
                             System.exit(0);
                         }
 
@@ -163,14 +165,21 @@ public class App {
                         "from book " +
                         "where ID ='" + remove_id+"'");
 
+                        String query = "delete from user_order where id = ?";
+                        String query2 = "delete from book where id = ?";
+
                         if (rset_remove.next()) {
                             try { 
-                                String query = "delete from book where id='" + rset_remove.getString(1) + "'";
-                                stmt_remove.executeUpdate(query);
-                                continue;
-    
+                                PreparedStatement pstmt = conn.prepareStatement(query);
+                                pstmt.setString(1, remove_id);
+                                pstmt.executeUpdate();
+
+                                PreparedStatement pstmt_2 = conn.prepareStatement(query2);
+                                pstmt_2.setString(1, remove_id);
+                                pstmt_2.executeUpdate();
+
                             }catch (SQLException sqle) {
-                                System.out.println("Couldn't delete book, please try again.");
+                                System.out.println(sqle.getMessage());
                                 System.exit(0);
                             }
                         }else {
@@ -190,8 +199,34 @@ public class App {
             }
             
             float user_cost = 0.0f;
+            Map<String, Float> authorMap = new HashMap<String, Float>();
+            Map<String, Float> genreMap = new HashMap<String, Float>();
+
+            //Just initializing author map and genre map with appropriate values before user begins. 
+            Statement a_stmt = conn.createStatement();
+                ResultSet r_set = a_stmt.executeQuery(
+                "select id " +
+                "from author;");
+            
+            while (r_set.next()) {
+                authorMap.put(r_set.getString(1), 0.00f);
+            }
+
+            Statement g_stmt = conn.createStatement();
+                ResultSet r_set_2 = g_stmt.executeQuery(
+                "select genre " +
+                "from book;");
+            
+            while (r_set_2.next()) {
+                if (genreMap.containsKey(r_set_2.getString(1))) {
+                    continue;
+                }
+                genreMap.put(r_set_2.getString(1), 0.00f);
+            }
+
+
             while (true) {
-                System.out.println("Would you like to view books (1) or leave (0), please enter the corresponding number.");
+                System.out.println("Would you like to view and purchase books (1) or leave (0), please enter the corresponding number.");
                 String response = scanner.nextLine();
 
                 if (response.equals("1")) {
@@ -212,13 +247,24 @@ public class App {
                     System.out.println("Enter the ID of the book you want to purchase.");
                     String bookID = scanner.nextLine();
                     ResultSet rset_2 = stmt.executeQuery(
-                        "select price " +
+                        "select price, genre, author_id " +
                         "from book " +
                         "where ID='" + bookID +"'");
                     
                     if (rset_2.next()) {
-                        float newOne = Float.parseFloat(rset_2.getString(1));
-                        user_cost += newOne;
+                        float p = Float.parseFloat(rset_2.getString(1));
+                        user_cost += p;
+
+                        String g = rset_2.getString(2);
+                        String a = rset_2.getString(3);
+
+                        if (authorMap.containsKey(a)) {
+                            authorMap.put(a, authorMap.get(a) + p);
+                        }
+                        if (genreMap.containsKey(g)) {
+                            genreMap.put(g, genreMap.get(g) + p);
+                        }
+
                         System.out.println("Your new cost is $" + user_cost);
                     }else {
                         System.out.println("ID not found, please try again.");
@@ -227,6 +273,14 @@ public class App {
                 }else if (response.equals("0")) {
                     System.out.println("Thank you, your total cost is $" + user_cost +  ". Please come again.");
                     
+                    authorMap.forEach((k,v) -> {
+                        System.out.format("Author ID: %s, SALE: %f%n", k, v);
+                    });
+                    System.out.println();
+                    genreMap.forEach((k,v) -> {
+                        System.out.format("GENRE: %s, SALE: %f%n", k, v);
+                    });
+
                     break;
                 }else {
                     System.out.println("Please enter a proper value. \n\n\n");
