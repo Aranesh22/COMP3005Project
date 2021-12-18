@@ -1,3 +1,7 @@
+GROUP NAMES  
+Rishie Kugathasan (101154994) 
+Aranesh Athavan (101152794) 
+
 IMPORTANT FILE CONTENTS  
 ~~~~~~~~~~~~~ 
 db folder  
@@ -13,6 +17,7 @@ HOW TO RUN A PROGRAM
 	-Test Runner for Java 
 	-Project Manager for java  
 3. The run program   
+4.  
 NOTES  
 ~~~~~ 
 In the main directory
