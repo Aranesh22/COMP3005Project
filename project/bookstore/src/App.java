@@ -26,7 +26,7 @@ public class App {
         // auto close connection
         try (Connection conn = DriverManager.getConnection(
                 "jdbc:postgresql://localhost:5000/postgres", "postgres", "Rishie2001!")) {
-
+                    
             if (conn != null) {
                 System.out.println("Connected to the database!");
             } else {
