@@ -1,9 +1,10 @@
-FILE CONTENTS  
+IMPORTANT FILE CONTENTS  
 ~~~~~~~~~~~~~ 
 db folder  
 project/bookstore 
+backup.sql 
+~~~~~~~~~~~~~~~~~~~~  
 HOW TO RUN A PROGRAM  
-~~~~~~~~~~~~~~~~~~~~   
 1. Make a directory and unzip contents in that directory 
 1.Change directory project/bookstore 
 2.First have extensions installed  [IF RUNNING ON VS CODE OTHERWISE SKIP STEP 3]
@@ -14,6 +15,6 @@ HOW TO RUN A PROGRAM
 3. The run program   
 NOTES  
 ~~~~~ 
-In the main directory d
+In the main directory
 The file backup.sql is our dumped database that should help to access everything that is worked on the db  
   such as creating all the tables and creating all the data for the sql db
