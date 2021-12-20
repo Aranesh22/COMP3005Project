@@ -22,4 +22,4 @@ NOTES
 ~~~~~ 
 In the main directory
 The file backup.sql is our dumped database that should help to access everything that is worked on the db  
-  such as creating all the tables and creating all the data for the sql db
+  such as creating all the tables and creating all the data for the sql db idealy all the sql content
